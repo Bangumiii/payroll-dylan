@@ -15,8 +15,6 @@ After cloning this repository:
 ```bash
     mvn dependency:resolve
 ```
-
-```
     //expected result
     [...]
     [INFO] ------------------------------------------------------------------------
@@ -25,7 +23,6 @@ After cloning this repository:
     [INFO] Total time:  10.070 s
     [INFO] Finished at: 2026-01-25T12:57:28+01:00
     [INFO] ------------------------------------------------------------------------
-```
 
 * Run the api with the dev profile (inject test data)
 

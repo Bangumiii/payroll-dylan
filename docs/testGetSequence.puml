@@ -1,0 +1,49 @@
+@startuml
+skinparam Style strictuml
+skinparam sequenceMessageAlign center
+
+actor "JUnit Runner" as JUnit
+participant "EmployeeGetTest" as Test
+participant "EmployeeRepository" as Repo
+database "Database (H2/Test)" as DB
+participant "TestRestTemplate" as Rest
+participant "EmployeeController" as API
+
+== Phase de préparation (@BeforeEach) ==
+
+JUnit -> Test : given_an_existing_employee()
+Test -> Repo : deleteAll()
+Repo -> DB : TRUNCATE/DELETE
+Test -> Repo : save(Employee "Doe")
+Repo -> DB : INSERT
+Test -> Repo : save(Employee "Smith")
+Repo -> DB : INSERT
+Test <-- Repo : existingEmployee (ID)
+
+== Test : Récupérer un employé par ID ==
+
+JUnit -> Test : when_getting_existing_employee_then_success()
+Test -> Rest : getForEntity("/api/v1/employees/{id}")
+Rest -> API : GET /api/v1/employees/1
+API -> Repo : findById(1)
+Repo -> DB : SELECT
+Repo <-- DB : Result
+API <-- Repo : Employee
+Rest <-- API : 200 OK + JSON Body
+Test <-- Rest : ResponseEntity<Employee>
+Test -> Test : Assertions (Status, Name, Role)
+
+== Test : Récupérer tous les employés ==
+
+JUnit -> Test : when_getting_all_employees_then_success()
+Test -> Rest : exchange("/api/v1/employees", GET)
+Rest -> API : GET /api/v1/employees
+API -> Repo : findAll()
+Repo -> DB : SELECT *
+Repo <-- DB : List<Employees>
+API <-- Repo : List
+Rest <-- API : 200 OK + JSON Array
+Test <-- Rest : ResponseEntity<List<Employee>>
+Test -> Test : Assertions (Size >= 2, Contains "Doe", "Smith")
+
+@enduml
