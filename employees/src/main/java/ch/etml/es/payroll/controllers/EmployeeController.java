@@ -16,7 +16,7 @@ public class EmployeeController {
 
     private final EmployeeRepository repository;
 
-    EmployeeController(EmployeeRepository repository){
+    EmployeeController(EmployeeRepository repository) {
         this.repository = repository;
     }
 
@@ -24,7 +24,7 @@ public class EmployeeController {
     curl -X GET localhost:8080/api/v1/employees | jq
     */
     @GetMapping("")
-    List<Employee> all(){
+    List<Employee> all() {
         return repository.findAll();
     }
 
@@ -32,7 +32,7 @@ public class EmployeeController {
     curl -X GET localhost:8080/api/v1/employees/1
     */
     @GetMapping("/{id}")
-    Employee one(@PathVariable Long id){
+    Employee one(@PathVariable Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException(id));
     }
@@ -55,5 +55,12 @@ public class EmployeeController {
         return ResponseEntity
                 .created(location)
                 .body(created);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Employee> deleteEmployee(@PathVariable Long id) {
+        repository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
